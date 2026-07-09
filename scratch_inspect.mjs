@@ -1,0 +1,11 @@
+import postgres from "postgres";
+import fs from "fs";
+const url = fs.readFileSync(".env","utf8").split("\n").find(l=>l.startsWith("DATABASE_URL=")).slice("DATABASE_URL=".length).trim();
+const sql = postgres(url, { max: 1 });
+const tiers = await sql`select name, product_id, count(*) as c from tiers group by name, product_id, base_price_per_seat, sort_order having count(*)>1 order by c desc`;
+const feats = await sql`select name, product_id, count(*) as c from features group by name, product_id, sort_order having count(*)>1 order by c desc`;
+console.log("DUP TIERS:", tiers);
+console.log("DUP FEATURES:", feats);
+const allT = await sql`select id,name,sort_order,product_id from tiers order by product_id, sort_order`;
+console.log("ALL TIERS:", allT.length); allT.forEach(t=>console.log(" ",t.product_id.slice(0,6),t.sort_order,t.name,t.id.slice(0,6)));
+await sql.end();

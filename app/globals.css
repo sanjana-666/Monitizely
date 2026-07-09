@@ -1,0 +1,396 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f7f6f2;
+  --paper-raised: #fbfaf7;
+  --ink: #1a2333;
+  --navy: #0f1b2d;
+  --navy-soft: #1c2c44;
+  --slate: #5b6472;
+  --slate-soft: #8b94a3;
+  --hairline: #dcd9d1;
+  --hairline-strong: #cbc7bc;
+  --ledger-green: #1f6f5c;
+  --ledger-green-dark: #164f41;
+  --ledger-green-tint: #e7f0ec;
+  --ledger-green-ring: rgba(31, 111, 92, 0.28);
+  --rust: #a04a34;
+  --rust-tint: #f6e9e4;
+  --gold: #b7893b;
+
+  /* Extended accent palette — muted but with more life */
+  --blue: #2f5d8c;
+  --blue-tint: #e6eef6;
+  --teal: #248a80;
+  --teal-tint: #e0f1ef;
+  --amber: #c0842a;
+  --amber-tint: #f8eed9;
+  --plum: #6b4e8a;
+  --plum-tint: #efe9f5;
+  --rust-strong: #a04a34;
+
+  /* Signature gradient used for accents */
+  --accent-gradient: linear-gradient(135deg, var(--ledger-green) 0%, var(--teal) 55%, var(--blue) 100%);
+
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15, 27, 45, 0.04), 0 1px 3px rgba(15, 27, 45, 0.06);
+  --shadow-md: 0 2px 6px rgba(15, 27, 45, 0.06), 0 8px 24px rgba(15, 27, 45, 0.08);
+  --shadow-lift: 0 6px 16px rgba(15, 27, 45, 0.1), 0 12px 32px rgba(15, 27, 45, 0.12);
+}
+
+@theme inline {
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(60rem 40rem at 12% -8%, rgba(47, 93, 140, 0.06), transparent 60%),
+    radial-gradient(50rem 36rem at 100% 0%, rgba(36, 138, 128, 0.07), transparent 55%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-mono-figures {
+  font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.hairline {
+  border-color: var(--hairline);
+}
+
+/* ---------- Reusable surfaces ---------- */
+
+.card {
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-flat {
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+}
+
+.section-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--slate);
+}
+
+/* ---------- Inputs ---------- */
+
+.field-label {
+  display: block;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate);
+  font-weight: 500;
+}
+
+.field-input {
+  width: 100%;
+  margin-top: 0.25rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-input:hover {
+  border-color: var(--hairline-strong);
+}
+.field-input:focus {
+  border-color: var(--ledger-green);
+  box-shadow: 0 0 0 3px var(--ledger-green-ring);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+.btn:active {
+  transform: translateY(0.5px);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--ledger-green) 0%, var(--teal) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--ledger-green-dark) 0%, var(--ledger-green) 100%);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-ghost {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+}
+.btn-ghost:hover {
+  border-color: var(--hairline-strong);
+  background: var(--paper-raised);
+}
+
+/* ---------- Selectable option cards ---------- */
+
+.option-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0.85rem 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, transform 0.08s ease;
+}
+.option-card:hover {
+  border-color: var(--hairline-strong);
+  box-shadow: var(--shadow-sm);
+}
+.option-card[data-selected="true"] {
+  border-color: var(--ledger-green);
+  background: var(--ledger-green-tint);
+  box-shadow: 0 0 0 1px var(--ledger-green) inset;
+}
+
+/* ---------- Segmented control ---------- */
+
+.segmented {
+  display: inline-flex;
+  width: 100%;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+.segmented button {
+  flex: 1;
+  border-radius: calc(var(--radius) - 3px);
+  padding: 0.5rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--slate);
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+.segmented button:hover {
+  color: var(--ink);
+}
+.segmented button[data-active="true"] {
+  background: #fff;
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Stepper ---------- */
+
+.stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+}
+.stepper button {
+  width: 2.25rem;
+  color: var(--slate);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  cursor: pointer;
+}
+.stepper button:hover {
+  background: var(--paper);
+  color: var(--ledger-green);
+}
+.stepper input {
+  width: 3.5rem;
+  border: 0;
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
+  text-align: center;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+/* ---------- Toggle switch ---------- */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 2.35rem;
+  height: 1.35rem;
+  flex: none;
+}
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.switch .track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--hairline-strong);
+  transition: background-color 0.18s ease;
+}
+.switch .thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s cubic-bezier(0.3, 1.3, 0.6, 1);
+}
+.switch input:checked + .track {
+  background: var(--ledger-green);
+}
+.switch input:checked + .track + .thumb {
+  transform: translateX(1rem);
+}
+.switch input:focus-visible + .track {
+  box-shadow: 0 0 0 3px var(--ledger-green-ring);
+}
+
+/* ---------- Badges ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-green {
+  background: var(--ledger-green-tint);
+  color: var(--ledger-green-dark);
+}
+.badge-blue {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+.badge-teal {
+  background: var(--teal-tint);
+  color: var(--teal);
+}
+.badge-amber {
+  background: var(--amber-tint);
+  color: var(--amber);
+}
+.badge-plum {
+  background: var(--plum-tint);
+  color: var(--plum);
+}
+.badge-rust {
+  background: var(--rust-tint);
+  color: var(--rust);
+}
+.badge-neutral {
+  background: var(--paper);
+  color: var(--slate);
+  border: 1px solid var(--hairline);
+}
+
+/* Gradient text + accent bar helpers */
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.accent-bar {
+  height: 3px;
+  background: var(--accent-gradient);
+}
+
+/* Colored step / stat medallions (set --dot / --dot-bg inline) */
+.medallion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--dot-bg, var(--ledger-green-tint));
+  color: var(--dot, var(--ledger-green-dark));
+  font-weight: 600;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: fade-rise 0.28s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Nicer default focus visibility for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--ledger-green);
+  outline-offset: 2px;
+}
+
+/* Cards that link somewhere lift slightly on hover */
+.link-card {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+}
+.link-card:hover {
+  border-color: var(--ledger-green);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
