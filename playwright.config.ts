@@ -20,9 +20,6 @@ export default defineConfig({
     command: "npm run dev -- -p 3312",
     url: "http://localhost:3312",
     reuseExistingServer: !process.env.CI,
-    env: {
-      SQLITE_PATH: "./data/e2e-test.db",
-    },
     timeout: 60_000,
   },
   projects: [
