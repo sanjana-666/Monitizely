@@ -15,29 +15,35 @@ Built with Next.js (App Router) + TypeScript, Drizzle ORM, and Postgres.
 
 ### 1. Get a Postgres database
 
-Easiest path, using the included Docker Compose file:
+The app just needs a `DATABASE_URL` pointing at any Postgres. Pick **one** of
+these, they're alternatives, not sequential steps:
 
-```bash
-docker compose up -d
-```
+- **Hosted (Neon, Vercel Postgres, Supabase, …)** — create a project and copy
+  its connection string. Nothing to install or run locally. This is what the
+  committed `.env`/`.env.local` are already configured for.
+- **Local via Docker** — using the included Docker Compose file:
 
-This starts Postgres on `localhost:5432` with user/password/db all set to
-`monetizely` (see `docker-compose.yml`).
+  ```bash
+  docker compose up -d
+  ```
 
-If you don't have Docker, any Postgres works, a free
-[Neon](https://neon.tech) project is a 60-second alternative, or a local
-`postgresql` install.
+  This starts Postgres on `localhost:5432` with user/password/db all set to
+  `monetizely` (see `docker-compose.yml`). A local `postgresql` install works
+  too.
 
 ### 2. Configure the connection string
 
+`.env.local` (used by Next.js at runtime) and `.env` (used by the drizzle-kit
+CLI) both need `DATABASE_URL` set. If they already contain a working hosted URL
+you're done, otherwise copy the template and fill it in:
+
 ```bash
-cp .env.example .env.local   # used by Next.js at runtime
-cp .env.example .env         # used by the drizzle-kit CLI
+cp .env.example .env.local
+cp .env.example .env
 ```
 
-Both should point `DATABASE_URL` at your database. The default in
-`.env.example` matches the Docker Compose setup, so if you used that, you
-don't need to change anything.
+For the Docker option above, use
+`postgresql://monetizely:monetizely@localhost:5432/monetizely`.
 
 ### 3. Install dependencies and set up the schema
 
@@ -51,18 +57,8 @@ you generally don't need a separate "apply migrations" step, but
 `npm run db:migrate` regenerates the migration SQL if you change
 `db/schema.ts`.
 
-### 4. (Optional) seed some demo data
 
-```bash
-npm run db:seed
-```
-
-This creates one product ("Analytics Suite") with the exact three tiers and
-add-on pricing shown in the brief's `catalog-example.xlsx`, so you can go
-straight to `/quotes/new` and reproduce the sample quote. It's a no-op if
-the catalog already has data.
-
-### 5. Run the app
+### 4. Run the app
 
 ```bash
 npm run dev
@@ -83,10 +79,17 @@ The first time, Playwright needs its browser binary:
 npx playwright install chromium
 ```
 
-`npm run e2e` starts its own dev server automatically (see
-`playwright.config.ts`) against a Postgres database, set `DATABASE_URL`
-in your shell first if you want it to use a database other than the one in
-`.env.local`.
+`npm run e2e` starts its own dev server automatically on port 3312 (see
+`playwright.config.ts`) and drives the full happy path: create a product, add
+a tier and an add-on feature, build a quote, and open the saved quote. Because
+it runs against a real `next dev` server that compiles each route on first
+visit, the config uses generous timeouts (90s per test, 20s per assertion);
+that's expected, not a hang.
+
+The test writes real rows to whatever `DATABASE_URL` points at, so point it at
+a throwaway database (a separate Docker container or Neon branch) rather than
+one whose data you care about. Set `DATABASE_URL` in your shell before running
+if you want a database other than the one in `.env.local`.
 
 ## Deploying
 
@@ -110,17 +113,22 @@ a local SQLite file (see "Decisions" below).
 
 ## What's in here
 
-- **Catalog setup** (`/catalog`): create products, add tiers with a base
-  price per seat per month, add features, and set whether each feature is
-  included, a paid add-on, or unavailable in each tier. Add-ons get a
-  pricing model (fixed $/month, $/seat/month, or % of the product price)
-  and a price.
+- **Home** (`/`): a short landing page laying out the two-step flow (set up a
+  catalog, then build a quote) with a link to the saved quotes list.
+- **Catalog setup** (`/catalog`): list and create products, then per product
+  (`/catalog/[productId]`) add tiers with a base price per seat per month, add
+  features, and set whether each feature is included, a paid add-on, or
+  unavailable in each tier. Add-ons get a pricing model (fixed $/month,
+  $/seat/month, or % of the product price) and a price. The feature/tier grid
+  saves cell by cell.
 - **Quote builder** (`/quotes/new`): name a quote, pick a customer, product,
   tier, seat count, and term length (monthly / annual / two-year, with the
   standard 0% / 15% / 25% discounts on the base price). Pick any add-ons
   available on that tier, optionally apply an overall discount, and save.
   There's a live price preview as you fill the form in.
-- **Quote view** (`/quotes/[id]`): a read-only, shareable page showing who
+- **Saved quotes** (`/quotes`): a list of every saved quote, newest first,
+  each linking to its shareable view.
+- **Quote view** (`/quotes/[quoteId]`): a read-only, shareable page showing who
   the quote is for, what's being purchased, and a full line-item breakdown
   with the exact formula behind each number.
 - **Pricing math** (`lib/pricing.ts`): pure, unit-tested functions with no

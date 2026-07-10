@@ -23,7 +23,7 @@ test("create catalog entry, build a quote, and view the saved quote", async ({ p
   await page.getByPlaceholder("e.g. Starter").fill("Growth");
   await page.getByPlaceholder("e.g. 25").fill("50");
   await page.getByRole("button", { name: "Add tier" }).click();
-  await expect(page.getByText("$50.00")).toBeVisible();
+  await expect(page.getByRole("cell", { name: "$50.00", exact: true })).toBeVisible();
 
   // 3. Add a feature.
   await page.getByPlaceholder("e.g. Single Sign-On (SSO)").fill("Single Sign-On (SSO)");
@@ -33,28 +33,35 @@ test("create catalog entry, build a quote, and view the saved quote", async ({ p
   // 4. Configure the feature as a fixed-price add-on on the Growth tier.
   const statusSelect = page.locator("select").first();
   await statusSelect.selectOption("addon");
-  const priceInput = page.locator('input[type="number"]').first();
+  // Target the add-on price input by its placeholder — the "Add tier" form also
+  // has a number input, and it comes first in the DOM.
+  const priceInput = page.getByPlaceholder("e.g. 200");
   await priceInput.fill("200");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Saved")).toBeVisible();
 
   // 5. Build a quote against that product.
   await page.goto("/quotes/new");
-  await page.getByPlaceholder("e.g. Acme Corp - Q3 2026 proposal").fill(quoteName);
+  await page.getByPlaceholder("e.g. Acme Corp — Q3 2026 proposal").fill(quoteName);
   await page.getByPlaceholder("e.g. Acme Corporation").fill(customerName);
 
-  await page.locator("select").first().selectOption({ label: productName });
-  // Seats
+  // Product and tier are option-card buttons, not native <select>s.
+  await page.getByRole("button", { name: productName }).click();
+  await page.getByRole("button", { name: "Growth" }).click();
+
+  // Seats — the Stepper's number field is the first number input on the page.
   const seatsInput = page.locator('input[type="number"]').first();
   await seatsInput.fill("10");
 
-  // Select the SSO add-on checkbox.
-  await page.getByText("Single Sign-On (SSO)").locator("..").locator('input[type="checkbox"]').check();
+  // Enable the SSO add-on by toggling its switch (its label wraps the feature name).
+  await page.getByText("Single Sign-On (SSO)").click();
 
   await page.getByRole("button", { name: "Save quote" }).click();
 
   // 6. We should land on the read-only quote view with the correct total.
-  await expect(page).toHaveURL(/\/quotes\/[a-zA-Z0-9_-]+$/);
+  // Wait for the redirect to the saved quote's own URL. Excluding "new" ensures
+  // this actually waits for navigation rather than matching the builder page.
+  await expect(page).toHaveURL(/\/quotes\/(?!new$)[a-zA-Z0-9_-]+$/);
   await expect(page.getByRole("heading", { name: quoteName })).toBeVisible();
   await expect(page.getByText(customerName)).toBeVisible();
   // 10 seats * $50/seat/mo * 1 month (monthly term, no discount) = $500
